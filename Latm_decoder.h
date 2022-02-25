@@ -36,5 +36,6 @@ struct _info {
 struct _opts {
 	bool overwrite;
 	path output;
+	bool benchmark;
 
 };

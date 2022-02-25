@@ -4,7 +4,7 @@
 #include <string>
 #include <filesystem>
 
-#include <regex>
+#include <chrono>
 #include "Latm_decoder.h"
 
 using namespace std::filesystem;
@@ -25,10 +25,15 @@ void cli_parser(char* argopts[], int optsum) {
         return;
     }
     struct _opts option;
-    
+    option.benchmark = false;
+
     for (int i = 0; i < optsum; i++) {
         if (!_stricmp(argopts[i], "--overwrite")) {
             option.overwrite = true;
+            continue;
+        }
+        if (!_stricmp(argopts[i], "--benchmark")) {
+            option.benchmark = true;
             continue;
         }
     }
@@ -59,9 +64,13 @@ void init_decoder(const char* input, struct _opts* option) {
 
         return;
     }
+    auto start = std::chrono::system_clock::now();
 
     loas_decoder(input, option);
-
+    if (option->benchmark) {
+        auto end = std::chrono::system_clock::now();
+        std::cout << "elapsed time" << end - start　<< std::endl;
+    }
 
 }
 
