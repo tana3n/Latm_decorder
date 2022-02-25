@@ -64,12 +64,12 @@ void init_decoder(const char* input, struct _opts* option) {
 
         return;
     }
-    auto start = std::chrono::system_clock::now();
+    auto start = std::chrono::steady_clock::now();
 
     loas_decoder(input, option);
     if (option->benchmark) {
-        auto end = std::chrono::system_clock::now();
-        std::cout << "elapsed time" << end - start << std::endl;
+        auto end = std::chrono::steady_clock::now();
+        std::cout << "\nelapsed time: " << duration_cast<std::chrono::seconds>(end - start)  << std::endl;
     }
 
 }
@@ -87,13 +87,9 @@ void loas_decoder(const char* input, struct _opts* option) {
     std::ofstream output_adts;
     path filename = option->output;
     output_adts.open(filename, std::ios::out | std::ios::binary);
-    std::cout << "opening:  " << option->output << std::endl;
-    
     char* hBuf = new char[3];
 
-    int i = 0;
     unsigned char* header = (unsigned char*)hBuf;
-    int fr = 0;
     import_latm.seekg(0);
     
     while (import_latm.tellg() < size) {
@@ -110,8 +106,8 @@ void loas_decoder(const char* input, struct _opts* option) {
         import_latm.read(sBuf, length);
 
         latm_decoder(sBuf, 1, option, output_adts);
-        std::cout << "\r[" << std::setfill('0') << std::left << std::setw(4) << std::floor(double(t + length) / (double)size * 10000) / 100
-            << "%]";//Output " << double((size_t)i + length)/1024/1024 << "Mbytes" ;
+        std::cout << "[" << std::setfill('0') << std::left << std::setw(4) << std::floor(double(t + length) / (double)size * 10000) / 100
+            << "%]\r";//Output " << double((size_t)i + length)/1024/1024 << "Mbytes" ;
         import_latm.seekg(t+length);
         
         delete[] sBuf;
