@@ -5,7 +5,7 @@ using namespace std::filesystem;
 
 void init_decoder(const char* input, struct _opts* option);
 void loas_decoder(const char* input, struct _opts* option);
-void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option);
+void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option, std::ofstream& output);
 void StreamMuxConfig(const char* input, struct _latmheader *config);
 void AudioSpecificConfig(const char* input, struct _latmheader* config);
 int GetAudioObjectType(const char* input);

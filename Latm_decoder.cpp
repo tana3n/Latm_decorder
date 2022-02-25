@@ -3,8 +3,8 @@
 #include <bitset>
 #include <string>
 #include <filesystem>
-#include <regex>
 
+#include <regex>
 #include "Latm_decoder.h"
 
 using namespace std::filesystem;
@@ -59,7 +59,10 @@ void init_decoder(const char* input, struct _opts* option) {
 
         return;
     }
+
     loas_decoder(input, option);
+
+
 }
 
 void loas_decoder(const char* input, struct _opts* option) {
@@ -72,6 +75,11 @@ void loas_decoder(const char* input, struct _opts* option) {
         return;
     }
 
+    std::ofstream output_adts;
+    path filename = option->output;
+    output_adts.open(filename, std::ios::out | std::ios::binary);
+    std::cout << "opening:  " << option->output << std::endl;
+    
     char* hBuf = new char[3];
 
     int i = 0;
@@ -92,7 +100,7 @@ void loas_decoder(const char* input, struct _opts* option) {
         char* sBuf = new char[length];
         import_latm.read(sBuf, length);
 
-        latm_decoder(sBuf, 1, option);
+        latm_decoder(sBuf, 1, option, output_adts);
         std::cout << "\r[" << std::setfill('0') << std::left << std::setw(4) << std::floor(double(t + length) / (double)size * 10000) / 100
             << "%]";//Output " << double((size_t)i + length)/1024/1024 << "Mbytes" ;
         import_latm.seekg(t+length);
@@ -103,10 +111,10 @@ void loas_decoder(const char* input, struct _opts* option) {
     delete[] hBuf;
  }
 
-void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option) {
+void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option, std::ofstream& output) {
      // AudioMuxElement()
      struct _latmheader latmconf;
-
+     const char* latm = input;
      if (muxConfigPresent) {
         int useSameStreamMux =( (input[0] >> 7)&1);
         if (!useSameStreamMux)
@@ -131,12 +139,6 @@ void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option)
 
 
          //Write ADTSHeader
-         std::ofstream output_adts;
-         path filename = option->output;
-         output_adts.open(filename, std::ios::app | std::ios::binary);
-
-         //std::cout << "latmconf.chanelConfiguration:  " <<  latmconf.chanelConfiguration  << std::endl;
-
          int sync = (0xFF << 4) & 0xFF;
          int ID = 0 << 3 ;
          int protection_bit = 1;
@@ -155,17 +157,16 @@ void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option)
          adtsheader.b4 = (framesize >> 3) & 0xFF;
          adtsheader.b5 = (framesize << 5) | 0x1F;
          adtsheader.b6 = 0xFC;
-         output_adts.write((char*)&adtsheader,sizeof(adtsheader));
+         output.write((char*)&adtsheader,sizeof(adtsheader));
 
 
-         int tmpt2;
-         for (tmpt2 = tmpt; tmpt2 < MuxSlotLengthBytes+tmpt; tmpt2 =1+ tmpt2) {
-             std::uintmax_t tmp2 = (input[tmpt2] << 5) & 0xFF;//明示的に切り捨て
-             std::uintmax_t tmp3 = ((input[tmpt2 + 1] >> 3) & 0x1F);
-             std::uintmax_t out = (tmp2 | tmp3);
-             output_adts.write((char*)&out, 1);
-
+         //int out;
+         char* out = new char[MuxSlotLengthBytes];
+         for (int tmpt2 = tmpt; tmpt2 < MuxSlotLengthBytes+tmpt; tmpt2 =1+ tmpt2) {
+             out[tmpt2-tmpt] = ((input[tmpt2] << 5) | ((input[tmpt2 + 1] >> 3) & 0x1F) );
          }
+         output.write(out, MuxSlotLengthBytes);
+
      }
 }
 
