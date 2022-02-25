@@ -85,11 +85,16 @@ void loas_decoder(const char* input, struct _opts* option) {
 
         char* sBuf = new char[length];
         import_latm.read(sBuf, length);
+
         latm_decoder(sBuf, 1, option);
         std::cout << "\r[" << std::setfill('0') << std::left << std::setw(4) << std::floor(double(t + length) / (double)size * 10000) / 100
             << "%]";//Output " << double((size_t)i + length)/1024/1024 << "Mbytes" ;
         import_latm.seekg(t+length);
+        
+        delete[] sBuf;
+
     }
+    delete[] hBuf;
  }
 
 void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option) {
@@ -295,7 +300,7 @@ int getADTSProfileValue(int value) {
     if (value == 2) {
         return 1;
     }
-    std::cout << "[Warm] Latm_decorder is supported AAC-LC only" << std::endl;
+    std::cout << "[Warn] Latm_decorder is supported AAC-LC only" << std::endl;
 
     return NULL;
 }
