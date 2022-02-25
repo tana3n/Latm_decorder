@@ -69,7 +69,7 @@ void init_decoder(const char* input, struct _opts* option) {
     loas_decoder(input, option);
     if (option->benchmark) {
         auto end = std::chrono::system_clock::now();
-        std::cout << "elapsed time" << end - start　<< std::endl;
+        std::cout << "elapsed time" << end - start << std::endl;
     }
 
 }
@@ -169,7 +169,6 @@ void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option,
          output.write((char*)&adtsheader,sizeof(adtsheader));
 
 
-         //int out;
          char* out = new char[MuxSlotLengthBytes];
          for (int tmpt2 = tmpt; tmpt2 < MuxSlotLengthBytes+tmpt; tmpt2 =1+ tmpt2) {
              out[tmpt2-tmpt] = ((input[tmpt2] << 5) | ((input[tmpt2 + 1] >> 3) & 0x1F) );
