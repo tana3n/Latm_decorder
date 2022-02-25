@@ -25,7 +25,13 @@ void cli_parser(char* argopts[], int optsum) {
         return;
     }
     struct _opts option;
-    option.overwrite = false;
+    
+    for (int i = 0; i < optsum; i++) {
+        if (!_stricmp(argopts[i], "--overwrite")) {
+            option.overwrite = true;
+            continue;
+        }
+    }
     init_decoder(argopts[optsum - 1], &option);
 
     return;
