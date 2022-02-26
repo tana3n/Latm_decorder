@@ -1,5 +1,5 @@
 #pragma once
-#define Version "1.0.0"
+#define Version "1.1.0"
 #include <filesystem>
 using namespace std::filesystem;
 

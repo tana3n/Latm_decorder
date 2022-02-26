@@ -13,7 +13,8 @@ using namespace std::filesystem;
 
 void usage() {
     std::cout << "Usage: latm_decoder [options] <input> \n";
-    std::cout << "--overwrite\tIf it exists in the output destination, it will be overwritten\n";
+    std::cout << "--overwrite\tIf it exists in the output destination, it will be overwritten.\n";
+    std::cout << "--benchmark\tShow elapsed time.\n";
 
     return;
 }
