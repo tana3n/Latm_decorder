@@ -87,9 +87,8 @@ void loas_decoder(const char* input, struct _opts* option) {
     std::ofstream output_adts;
     path filename = option->output;
     output_adts.open(filename, std::ios::out | std::ios::binary);
-    char* hBuf = new char[3];
+    char* hBuf = new char[4096];
 
-    unsigned char* header = (unsigned char*)hBuf;
     import_latm.seekg(0);
     
     while (import_latm.tellg() < size) {
@@ -100,17 +99,13 @@ void loas_decoder(const char* input, struct _opts* option) {
             continue;
         }
         std::uintmax_t length = ((((((unsigned char*)hBuf)[1] & 0x1F) << 8) | ((unsigned char*)hBuf)[2]) + 3);
-        //std::cout << "lengths: " << length << std::endl;
+        import_latm.read(hBuf, length);
 
-        char* sBuf = new char[length];
-        import_latm.read(sBuf, length);
-
-        latm_decoder(sBuf, 1, option, output_adts);
-        std::cout << "[" << std::setfill('0') << std::left << std::setw(4) << std::floor(double(t + length) / (double)size * 10000) / 100
-            << "%]\r";//Output " << double((size_t)i + length)/1024/1024 << "Mbytes" ;
+        latm_decoder(hBuf, 1, option, output_adts);
+        //std::cout << "[" << std::setfill('0') << std::left << std::setw(4) << std::floor(double(t + length) / (double)size * 10000) / 100
+        //    << "%]\r";//Output " << double((size_t)i + length)/1024/1024 << "Mbytes" ;
         import_latm.seekg(t+length);
         
-        delete[] sBuf;
 
     }
     delete[] hBuf;
@@ -170,6 +165,7 @@ void latm_decoder(const char* input, int muxConfigPresent, struct _opts* option,
              out[tmpt2-tmpt] = ((input[tmpt2] << 5) | ((input[tmpt2 + 1] >> 3) & 0x1F) );
          }
          output.write(out, MuxSlotLengthBytes);
+         delete[] out;
 
      }
 }
