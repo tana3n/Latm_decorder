@@ -1,5 +1,6 @@
 # Latm_decorder
 LATM/LOASのヘッダーを元にADTSなAACに変換します．  
+同期層にLOASが使われている場合のみの対応です.　　
 
 ## 簡単な使い方
 latm_decoder input.latm　　
